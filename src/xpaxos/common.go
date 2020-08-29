@@ -2,7 +2,7 @@ package xpaxos
 
 import (
 	"crypto/rsa"
-	"network"
+	"github.com/csanti/cos518_project/src/network"
 	"sync"
 	"testing"
 	"time"

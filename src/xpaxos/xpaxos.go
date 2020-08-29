@@ -21,7 +21,7 @@ import (
 	"bytes"
 	"crypto/rsa"
 	"math/rand"
-	"network"
+	"github.com/csanti/cos518_project/src/network"
 	"time"
 )
 

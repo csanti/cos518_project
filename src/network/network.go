@@ -126,6 +126,15 @@ func (rn *Network) LongDelays(yes bool) {
 	rn.longDelays = yes
 }
 
+func (rn *Network) SetDelays(minDelay int, maxDelay int) {
+	rn.mu.Lock()
+	defer rn.mu.Unlock()
+
+	rn.simulNetDelay = true
+	rn.netDelayMin = minDelay
+	rn.netDelayMax = maxDelay
+}
+
 func (rn *Network) ReadEndnameInfo(endname interface{}) (enabled bool, servername interface{},
 	server *Server, reliable bool, longreordering bool) {
 	rn.mu.Lock()
@@ -203,6 +212,12 @@ func (rn *Network) ProcessReq(req reqMsg) {
 		// Do not reply if DeleteServer() has been called to avoid situation in which a client gets a
 		// positive reply but the server persisted the update
 		serverDead = rn.IsServerDead(req.endname, servername, server)
+
+		// network propagation delay
+		if rn.simulNetDelay {
+			ms := rn.netDelayMin+(rand.Int() % (rn.netDelayMax - rn.netDelayMin))
+			time.Sleep(time.Duration(ms) * time.Millisecond)
+		}
 
 		if replyOK == false || serverDead == true {
 			req.replyCh <- replyMsg{false, nil} // Server was killed while we were waiting; return error

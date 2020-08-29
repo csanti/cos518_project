@@ -6,7 +6,7 @@ package xpaxos
 // => Option to perform cleanup with xp.Kill()
 
 import (
-	"network"
+	"github.com/csanti/cos518_project/src/network"
 	"time"
 )
 
@@ -44,7 +44,6 @@ func (client *Client) Propose(op interface{}) { // For simplicity, we assume the
 		ClientId:  CLIENT}
 
 	replyCh := make(chan bool)
-
 	for server, _ := range client.replicas {
 		if server != CLIENT {
 			go client.issueReplicate(server, request, replyCh, 0)

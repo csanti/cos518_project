@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-const DEBUG = 1   // Debugging (0 = None, 1 = Info, 2 = Debug)
+const DEBUG = 2   // Debugging (0 = None, 1 = Info, 2 = Debug)
 const DELTA = 100 // Network time frame delta for XPaxos synchronous group (in milliseconds)
 
 type Network struct {
@@ -19,6 +19,9 @@ type Network struct {
 	connections    map[interface{}]interface{} // Map of endpoint name to server name
 	endCh          chan reqMsg
 	faultRate      map[interface{}]int
+	simulNetDelay  bool
+	netDelayMax	   int
+	netDelayMin    int
 }
 
 type Server struct {

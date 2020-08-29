@@ -4,7 +4,7 @@ import (
 	crand "crypto/rand"
 	"crypto/rsa"
 	"encoding/base64"
-	"network"
+	"github.com/csanti/cos518_project/src/network"
 	"runtime"
 	"sync/atomic"
 	"testing"
@@ -45,6 +45,38 @@ func makeConfig(t *testing.T, n int, unreliable bool) *config {
 
 	return cfg
 }
+
+func makeConfig2(t *testing.T, n int, unreliable bool, minDelay int, maxDelay int) *config {
+	runtime.GOMAXPROCS(4)
+	cfg := &config{}
+	cfg.t = t
+	cfg.net = network.MakeNetwork()
+	cfg.n = n
+	cfg.xpServers = make([]*XPaxos, cfg.n)
+	cfg.client = &Client{}
+	cfg.connected = make([]bool, cfg.n)
+	cfg.endnames = make([][]string, cfg.n)
+	cfg.privateKeys = make(map[int]*rsa.PrivateKey, cfg.n)
+	cfg.publicKeys = make(map[int]*rsa.PublicKey, cfg.n)
+
+	cfg.setUnreliable(unreliable)
+	cfg.net.LongDelays(false)
+
+	cfg.net.SetDelays(minDelay, maxDelay)
+
+	cfg.startClient() // Create client server
+
+	for i := 1; i < cfg.n; i++ { // Create a full set of XPaxos servers
+		cfg.start1(i)
+	}
+
+	for i := 0; i < cfg.n; i++ { // Connect everyone
+		cfg.connect(i)
+	}
+
+	return cfg
+}
+
 
 // Shut down an XPaxos server
 func (cfg *config) crash1(i int) {

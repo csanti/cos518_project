@@ -499,6 +499,22 @@ func benchmarkNoFaults(n int, size int, b *testing.B) {
 	rand.Read(op) // Operation is random byte array of size bytes
 
 	b.ResetTimer()
+	fmt.Printf("Iterations %d\n",b.N)
+	for i := 0; i < b.N; i++ {
+		cfg.client.Propose(op)
+	}
+}
+
+func benchmarkNoFaultsWithDelay(n int, size int, b *testing.B) {
+	servers := n // The number of XPaxos servers is n-1 (client included!)
+	cfg := makeConfig2(nil, servers, false, 50, 100)
+	defer cfg.cleanup()
+
+	op := make([]byte, size)
+	rand.Read(op) // Operation is random byte array of size bytes
+
+	b.ResetTimer()
+	fmt.Printf("Iterations %d\n",b.N)
 	for i := 0; i < b.N; i++ {
 		cfg.client.Propose(op)
 	}
@@ -640,3 +656,5 @@ func Benchmark_11_0_8MB(b *testing.B)   { benchmarkNoFaults(12, 8388608, b) }
 
 // Benchmark_11_B - Number of XPaxos servers = 11 (t=5), One Byzantine Fault
 //func Benchmark_11_B_256kB(b *testing.B) { benchmarkByzantineFault(12, 262144, b) }
+
+func Benchmark_3_0_1kB_delay(b *testing.B)   { benchmarkNoFaultsWithDelay(4, 1024, b) }
